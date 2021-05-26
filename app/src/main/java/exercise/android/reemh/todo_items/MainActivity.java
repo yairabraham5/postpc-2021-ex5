@@ -6,9 +6,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,12 +21,29 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     setContentView(R.layout.activity_main);
 
     if (holder == null) {
       holder = new TodoItemsHolderImpl();
     }
+    EditText editText = findViewById(R.id.editTextInsertTask);
+    FloatingActionButton button = findViewById(R.id.buttonCreateTodoItem);
+    RecyclerView recyclerView = findViewById(R.id.recyclerTodoItemsList);
+    TodoAdapter todoAdapter = new TodoAdapter();
+    todoAdapter.setTodoItemsHolder(holder);
+    recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+    recyclerView.setAdapter(todoAdapter);
 
+    button.setOnClickListener(v->{
+//      Log.i("hi", "hi");
+      String des = editText.getText().toString();
+      if (!des.equals("")){
+        holder.addNewInProgressItem(des);
+        editText.setText("");
+        todoAdapter.notifyDataSetChanged();
+      }
+    });
     // TODO: implement the specs as defined below
     //    (find all UI components, hook them up, connect everything you need)
   }
@@ -46,7 +67,8 @@ SPECS:
       where the last-created item is the first item in the list
     - all DONE items are shown afterwards, no particular sort is needed (but try to think about what's the best UX for the user)
   * every item shows a checkbox and a description. you can decide to show other data as well (creation time, etc)
-  * DONE items should show the checkbox as checked, and the description with a strike-through text
+  * DONE items should show the checkbox as checked, and the descripti
+  t
   * IN-PROGRESS items should show the checkbox as not checked, and the description text normal
   * upon click on the checkbox, flip the TodoItem's state (if was DONE will be IN-PROGRESS, and vice versa)
   * add a functionality to remove a TodoItem. either by a button, long-click or any other UX as you want

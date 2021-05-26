@@ -23,4 +23,6 @@ public interface TodoItemsHolder {
 
   /** delete the @param item */
   void deleteItem(TodoItem item);
+
+  int itemIndex(TodoItem item);
 }

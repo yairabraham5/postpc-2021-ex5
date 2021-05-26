@@ -1,4 +1,5 @@
 I solomonely swear I did this project by myself.
+
 Questions:
 I would change the TextView to edit Text and make the click create another activity where we can 
 change the text of the todo list.

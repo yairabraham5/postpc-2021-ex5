@@ -1,3 +1,12 @@
+I solomonely swear I did this project by myself.
+Questions:
+I would change the TextView to edit Text and make the click create another activity where we can 
+change the text of the todo list.
+It will be visible by adding a edit icon next to the text
+I think it's not hard to implement since we're familiar with sending and receiving broadcasts.
+This flow is pretty consistent with we see in every day apps having a edit icon where we can change 
+different things and texts.
+
 # TodoItems List
 
 An Android exercise for developers teaching how to play around with RecyclerView and Adapter

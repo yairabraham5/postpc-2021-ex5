@@ -13,12 +13,12 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_delete"
-        app:layout_constraintStart_toStartOf="@id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="parent"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_delete" />
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -31,14 +31,35 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        app:layout_constraintStart_toStartOf="@id/checkBox"
-        app:layout_constraintEnd_toEndOf="@id/imageView"
+
+        app:layout_constraintRight_toLeftOf="@id/imageView"
+        app:layout_constraintLeft_toRightOf="@id/checkBox"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-
         />
+
+<!--    <TextView-->
+<!--        android:id="@+id/lastModified"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="TextView"-->
+<!--        app:layout_constraintRight_toLeftOf="@id/imageView"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--         />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/Created"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="TextView"-->
+<!--        app:layout_constraintRight_toLeftOf="@id/lastModified"-->
+<!--        app:layout_constraintLeft_toRightOf="@id/description"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"/>-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>

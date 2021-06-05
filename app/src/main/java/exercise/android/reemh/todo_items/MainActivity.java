@@ -5,7 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +20,15 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+
+import java.io.Serializable;
 
 public class MainActivity extends AppCompatActivity {
 
-  public TodoItemsHolder holder = null;
+//  public TodoItemsHolder holder = null;
+  private BroadcastReceiver broadcastReceiverForDescription = null;
+  private BroadcastReceiver broadcastReceiverForChangeInProgress = null;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -24,30 +36,127 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.activity_main);
 
-    if (holder == null) {
-      holder = new TodoItemsHolderImpl();
+    // we don't need holder anymore because we have a class for it
+//    if (holder == null) {
+//      holder = new TodoItemsHolderImpl();
+//    }
+    TodoAdapter todoAdapter = new TodoAdapter();
+
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+    String getItemsHolder = sharedPreferences.getString("itemsHolder", null);
+    if(getItemsHolder == null){
+      if(((TodoApp)getApplicationContext()).getItemsHolder() == null){
+        if(savedInstanceState == null) {
+          ((TodoApp) getApplicationContext()).setItemsHolder(new TodoItemsHolderImpl());
+        }
+        else{
+          ((TodoApp) getApplicationContext()).setItemsHolder((TodoItemsHolder)savedInstanceState.getSerializable("itemsHolder"));
+        }
+      }
     }
+    else{
+      Gson gson = new Gson();
+      TodoItemsHolderImpl itemsHolder = gson.fromJson(getItemsHolder, TodoItemsHolderImpl.class);
+      ((TodoApp) getApplicationContext()).setItemsHolder(itemsHolder);
+    }
+
     EditText editText = findViewById(R.id.editTextInsertTask);
     FloatingActionButton button = findViewById(R.id.buttonCreateTodoItem);
     RecyclerView recyclerView = findViewById(R.id.recyclerTodoItemsList);
-    TodoAdapter todoAdapter = new TodoAdapter();
-    todoAdapter.setTodoItemsHolder(holder);
+    todoAdapter.setTodoItemsHolder(((TodoApp) getApplicationContext()).getItemsHolder());
     recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
     recyclerView.setAdapter(todoAdapter);
 
+    todoAdapter.clickTodoItem = (TodoItem item) ->{
+      Intent editItem =  new Intent(MainActivity.this, EditActivity.class);
+      int positionItem = ((TodoApp) getApplicationContext()).getItemsHolder().getCurrentItems().indexOf(item);
+      editItem.putExtra("Position", positionItem);
+      startActivity(editItem);
+    };
+
+
     button.setOnClickListener(v->{
-//      Log.i("hi", "hi");
       String des = editText.getText().toString();
       if (!des.equals("")){
-        holder.addNewInProgressItem(des);
+        ((TodoApp) getApplicationContext()).getItemsHolder().addNewInProgressItem(des);
         editText.setText("");
         todoAdapter.notifyDataSetChanged();
       }
     });
+
+    broadcastReceiverForDescription = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(intent == null || !intent.getAction().equals("changeDescription")){
+          return;
+        }
+        String newDescription = intent.getStringExtra("newDescription");
+        int position = intent.getIntExtra("Position", 0);
+        ((TodoApp) getApplicationContext()).getItemsHolder().getCurrentItems().get(position).setTodo(newDescription);
+        todoAdapter.notifyItemChanged(position);
+      }
+    };
+
+    broadcastReceiverForChangeInProgress = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if( intent == null || !intent.getAction().equals("changeInProgress")){
+          return;
+        }
+        int position = intent.getIntExtra("Position", 0);
+        TodoItem item = ((TodoApp) getApplicationContext()).getItemsHolder().getCurrentItems().get(position);
+        if(item.isItemDone()){
+          ((TodoApp) getApplicationContext()).getItemsHolder().markItemInProgress(item);
+        }
+        else{
+          ((TodoApp) getApplicationContext()).getItemsHolder().markItemDone(item);
+        }
+        todoAdapter.notifyDataSetChanged();
+      }
+    };
+
+
+    registerReceiver(broadcastReceiverForChangeInProgress, new IntentFilter("changeInProgress"));
+    registerReceiver(broadcastReceiverForDescription, new IntentFilter("changeDescription"));
+
     // TODO: implement the specs as defined below
     //    (find all UI components, hook them up, connect everything you need)
+
+
   }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    TodoItemsHolderImpl holder = (TodoItemsHolderImpl)  ((TodoApp) getApplicationContext()).getItemsHolder();
+    Gson gson = new Gson();
+    String s = gson.toJson(holder, TodoItemsHolderImpl.class);
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    SharedPreferences.Editor edit = sharedPreferences.edit();
+    edit.putString("itemsHolder", s);
+    edit.apply();
+  }
+
+  @Override
+  protected void onSaveInstanceState(@NonNull Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putSerializable("itemsHolder", ((TodoApp)getApplicationContext()).getItemsHolder());
+  }
+
+
+  @Override
+  protected void onDestroy(){
+    super.onDestroy();
+    unregisterReceiver(broadcastReceiverForChangeInProgress);
+    unregisterReceiver(broadcastReceiverForDescription);
+  }
+
+
+
+
 }
+
 
 /*
 

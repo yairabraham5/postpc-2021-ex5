@@ -1,5 +1,4 @@
 package exercise.android.reemh.todo_items;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -12,13 +11,13 @@ public class TodoViewHolder extends RecyclerView.ViewHolder {
 
 
     ImageView deleteView;
-    TextView text;
+    TextView description;
     CheckBox box;
 
     public TodoViewHolder(@NonNull View itemView) {
         super(itemView);
         deleteView = itemView.findViewById(R.id.imageView);
-        text = itemView.findViewById(R.id.textView);
+        description = itemView.findViewById(R.id.description);
         box = itemView.findViewById(R.id.checkBox);
     }
 }
